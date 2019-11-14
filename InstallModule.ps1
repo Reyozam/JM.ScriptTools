@@ -24,7 +24,7 @@ $UnzippedFolder = (Get-ChildItem $TempDir | Where-Object {$_.Name -like "*-maste
 
 Write-Verbose "Copy to $Destination ..."
 
-Get-ChildItem $UnzippedFolder | Copy-Item -Destination $Destination -Recurse -Container
+Get-ChildItem $UnzippedFolder | Copy-Item -Destination $Destination -Recurse -Container -Force
 
 
 
