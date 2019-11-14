@@ -1,9 +1,5 @@
 ---
 Module Name: JM.ScriptTools
-Module Guid: a9e660ef-2c5f-4365-923e-bdde37634271
-Download Help Link: {{ Update Download Link }}
-Help Version: {{ Please enter version of help manually (X.X.X.X) format }}
-Locale: en-US
 ---
 
 # JM.ScriptTools Module

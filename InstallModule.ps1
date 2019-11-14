@@ -6,11 +6,11 @@ $TempDir = Join-Path $env:TEMP -ChildPath (New-Guid).Guid
 
 if ($PSVersionTable.PSVersion.Major -gt 5)
 {
-    $Destination = "C:\Program Files\PowerShell\Modules\$ScriptName"
+    $Destination = "C:\Program Files\PowerShell\Modules\$ModuleName"
 }
 else
 {
-    $Destination = "C:\Program Files\WindowsPowerShell\Modules\$ScriptName"
+    $Destination = "C:\Program Files\WindowsPowerShell\Modules\$ModuleName"
 }
 
 Write-Verbose "Download of $ZipURL ..." -Verbose
@@ -25,4 +25,7 @@ $UnzippedFolder = (Get-ChildItem $TempDir | Where-Object {$_.Name -like "*-maste
 Write-Verbose "Copy to $Destination ..."
 
 Copy-Item -Path "$($UnzippedFolder)\" -Destination $Destination -Verbose -Recurse
+
+
+
 
