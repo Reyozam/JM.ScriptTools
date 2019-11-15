@@ -3,7 +3,9 @@
 Helpers Functions for Scripts
 
 ## Installation
-
+```
+iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Reyozam/JM.ScriptTools/master/InstallModule.ps1'))
+```
 
 
 ## Cmdlets

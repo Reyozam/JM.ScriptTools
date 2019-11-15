@@ -36,7 +36,7 @@
 
     Stop-Process $Select
 
-    .EXEMPLE
+    .EXAMPLE
 
     Write-Menu -menuItems @(Get-ChildItem -File) -Title "Selectionnez les fichiers a supprimer" -Multiselect
 
@@ -50,7 +50,9 @@
         [x] PROD_PostBascule.log
       > [x] PROD_PreBascule.log
         [ ] Report.html
- #>
+
+#>
+
  function Write-Menu {
  
     param(

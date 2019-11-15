@@ -4,6 +4,7 @@
 # Autor        :  Julien Mazoyer
 # Description  :  Custom Log Function
 ###############################################################################################################
+
 <#
     .SYNOPSIS
     Function de Log avancée
@@ -26,10 +27,11 @@
 
     .EXAMPLE
     #Definir le paramétre LogFile par defaut :
-
     $LogFile = 'C:\logs\mylogfile.log'
     $PSDefaultParameterValues = @{ 'Write-LogColor:LogFile'   = $LogFile}
- #>
+
+#>
+
 function Write-LogColor 
 {
 
