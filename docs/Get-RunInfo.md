@@ -1,6 +1,6 @@
 ---
 external help file: JM.ScriptTools-help.xml
-Module Name: JM.ScriptTools
+Module Name: Jm.scriptTools
 online version:
 schema: 2.0.0
 ---

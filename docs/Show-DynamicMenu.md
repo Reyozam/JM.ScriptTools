@@ -1,6 +1,6 @@
 ---
 external help file: JM.ScriptTools-help.xml
-Module Name: JM.ScriptTools
+Module Name: Jm.scriptTools
 online version:
 schema: 2.0.0
 ---
@@ -34,6 +34,15 @@ MenuTitle = "Menu"
 }
 
 Show-DynamicMenu @Menu
+
+================================================================ 
+                                MENU
+================================================================
+\[1\] Options1
+\[2\] Options2
+\[3\] Options3
+\[4\] Options4
+Make a selection \[1,2,3,4 OR Q to quit\]
 
 ## PARAMETERS
 

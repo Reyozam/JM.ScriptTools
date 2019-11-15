@@ -8,7 +8,7 @@ schema: 2.0.0
 # Write-Menu
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+Create Menu with selection by arrows keys
 
 ## SYNTAX
 
@@ -17,21 +17,52 @@ Write-Menu [-Entries] <Object> [[-Title] <String>] [-Sort] [-MultiSelect] [<Comm
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+Create Menu with selection by arrows keys and return selection.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXEMPLE 1
+```
+$TopProcess = Get-Process | Sort-Object CPU | Select-Object -First 10
 ```
 
-{{ Add example description here }}
+$Select = Write-Menu -Entries $TopProcess.Name -Title "Selectionnez le processus a arreter:"
+
+Selectionnez le processus a arreter:
+────────────────────────────────
+    \> svchost
+    svchost
+    svchost
+    svchost
+    Registry
+    OfficeClickToRun
+    NvTelemetryContainer
+    OriginWebHelperService
+    svchost
+    PnkBstrA
+
+Stop-Process $Select
+
+### EXEMPLE 2
+```
+Write-Menu -menuItems @(Get-ChildItem -File) -Title "Selectionnez les fichiers a supprimer" -Multiselect
+```
+
+Selectionnez les fichiers a supprimer
+─────────────────────────────────────
+    \[ \] CheckDNSPRODAD.ps1
+    \[ \] DISM Demo.ps1
+    \[ \] Log-20190405-1603.log
+    \[x\] Log-20190405-1608.log
+    \[x\] Log-20190407-1231.log
+    \[x\] PROD_PostBascule.log
+  \> \[x\] PROD_PreBascule.log
+    \[ \] Report.html
 
 ## PARAMETERS
 
 ### -Entries
-{{ Fill Entries Description }}
+Array or hashtable containing the menu entries
 
 ```yaml
 Type: Object
@@ -39,44 +70,14 @@ Parameter Sets: (All)
 Aliases: InputObject
 
 Required: True
-Position: 0
+Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -MultiSelect
-{{ Fill MultiSelect Description }}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Nommé
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Sort
-{{ Fill Sort Description }}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Nommé
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Title
-{{ Fill Title Description }}
+Title shown at the top of the menu.
 
 ```yaml
 Type: String
@@ -84,9 +85,40 @@ Parameter Sets: (All)
 Aliases: Name
 
 Required: False
-Position: 1
+Position: 2
 Default value: None
 Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -Sort
+Sort entries before they are displayed.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MultiSelect
+Make possible to choose multiple items.
+Return as an array
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -95,13 +127,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.Object
-
-### System.String
-
 ## OUTPUTS
 
-### System.Object
 ## NOTES
 
 ## RELATED LINKS
