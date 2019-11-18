@@ -38,27 +38,31 @@ Function pour logger dans la console et dans un fichier
 ### EXEMPLE 1
 ```
 # Démarrer le script
-```
+
 
 Write-LogColor -StartLog -LogFile $LogFile
-
+```
+```
 #Uniquement affiché dans la console
 Write-LogColor -Text "Red ", "Green ", "Yellow " -Color Red,Green,Yellow
-
+```
+```
 #Dans la console et vers le log
 Write-LogColor -Text "Red ", "Green ", "Yellow " -Color Red,Green,Yellow -LogFile $LogFile
-
+```
+```
 #Finir le script
 Write-LogColor -Endlog -LogFile $LogFile
+```
 
 ### EXEMPLE 2
 ```
 #Definir le paramétre LogFile par defaut :
-```
+
 
 $LogFile = 'C:\logs\mylogfile.log'
 $PSDefaultParameterValues = @{ 'Write-LogColor:LogFile'   = $LogFile}
-
+```
 ## PARAMETERS
 
 ### -Text

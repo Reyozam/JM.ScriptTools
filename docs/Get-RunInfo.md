@@ -24,7 +24,7 @@ Get Powershell current session information
 ### EXEMPLE 1
 ```
 Get-RunInfo
-```
+
 
 User            : XPS\Xeph
 Elevated        : False
@@ -37,7 +37,7 @@ PSHost          : Visual Studio Code Host
 WSMan           : 3.0
 ExecutionPolicy : RemoteSigned
 Culture         : fr-FR
-
+```
 ## PARAMETERS
 
 ### -AsString

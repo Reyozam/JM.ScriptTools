@@ -24,7 +24,7 @@ Create Menu with selection by arrows keys and return selection.
 ### EXEMPLE 1
 ```
 $TopProcess = Get-Process | Sort-Object CPU | Select-Object -First 10
-```
+
 
 $Select = Write-Menu -Entries $TopProcess.Name -Title "Selectionnez le processus a arreter:"
 
@@ -42,23 +42,23 @@ Selectionnez le processus a arreter:
     PnkBstrA
 
 Stop-Process $Select
-
+```
 ### EXEMPLE 2
 ```
 Write-Menu -menuItems @(Get-ChildItem -File) -Title "Selectionnez les fichiers a supprimer" -Multiselect
-```
+
 
 Selectionnez les fichiers a supprimer
 ─────────────────────────────────────
-    \[ \] CheckDNSPRODAD.ps1
-    \[ \] DISM Demo.ps1
-    \[ \] Log-20190405-1603.log
-    \[x\] Log-20190405-1608.log
-    \[x\] Log-20190407-1231.log
-    \[x\] PROD_PostBascule.log
-  \> \[x\] PROD_PreBascule.log
-    \[ \] Report.html
-
+  [ ] CheckDNSPRODAD.ps1
+  [ ] DISM Demo.ps1
+  [ ] Log-20190405-1603.log
+  [x] Log-20190405-1608.log
+  [x] Log-20190407-1231.log
+  [x] PROD_PostBascule.log
+  [x] PROD_PreBascule.log
+  [ ] Report.html
+```
 ## PARAMETERS
 
 ### -Entries

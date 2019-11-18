@@ -1,7 +1,7 @@
 ﻿###############################################################################################################
 # Language     :  PowerShell 5.0
-# Filename     :  Get-Who.ps1
-# Autor        :  Julien Mazoyer
+# Filename     :  Get-RunInfo.ps1
+# Autor        :  Julien Mazoyer (Fork LonelyAdministrator)
 # Description  :  Get PowerShell session information
 ###############################################################################################################
 

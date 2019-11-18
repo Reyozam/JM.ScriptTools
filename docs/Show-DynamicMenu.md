@@ -25,7 +25,7 @@ Create a CLI Menu
 ### EXEMPLE 1
 ```
 $Menu = @{
-```
+
 
 MenuTitle = "Menu"
     MenuKeys = @(1,2,3,4)
@@ -38,12 +38,12 @@ Show-DynamicMenu @Menu
 ================================================================ 
                                 MENU
 ================================================================
-\[1\] Options1
-\[2\] Options2
-\[3\] Options3
-\[4\] Options4
-Make a selection \[1,2,3,4 OR Q to quit\]
-
+[1] Options1
+[2] Options2
+[3] Options3
+[4] Options4
+Make a selection [1,2,3,4 OR Q to quit]
+```
 ## PARAMETERS
 
 ### -menuTitle

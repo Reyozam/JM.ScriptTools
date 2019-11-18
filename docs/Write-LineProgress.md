@@ -24,14 +24,14 @@ Write Progress Bar in console
 ### EXEMPLE 1
 ```
 for ($i = 0; $i -lt 100; $i++) {
-```
 
 Start-Sleep 1
         Write-LineProgress -Activity "Test" -Progress $i
         }
 
-Test \[■■■■■■■■■■■----------------------------------------------------------------\] 15%
-
+Test 
+[■■■■■■■■■■■----------------------------------------------------------------] 15%
+```
 ## PARAMETERS
 
 ### -Activity
