@@ -40,7 +40,9 @@ function Show-DynamicMenu{
         [Parameter(Mandatory=$true)]
         [array]$menuOptions,
         [Parameter(Mandatory=$true)]
-        [array]$menuActions
+        [array]$menuActions,
+        [Parameter(Mandatory=$false)]
+        [ConsoleColor[]]$Color = "Green"
     )
     # validates that the number of objects in keys, options, and actions match
     if (-Not ($menuOptions.Length -eq $menuActions.Length)) {
@@ -59,13 +61,13 @@ function Show-DynamicMenu{
         
         #TITLE
         $Longer = ($menuOptions | Sort-Object Length -Descending | Select-Object -First 1).Length
-        Write-Host $menuTitle.ToUpper()  -ForegroundColor Green
-        Write-Host ("=" * ($Longer+ 8)) -ForegroundColor Green
+        Write-Host $menuTitle.ToUpper()  -ForegroundColor $Color
+        Write-Host ("=" * ($Longer+ 8)) -ForegroundColor $Color
         Write-Host ""
 
 
         for ($i=1;$i -le $menuLength; $i++){
-            Write-Host " [$($menuKeys[$i-1])]" -NoNewline -ForegroundColor Green
+            Write-Host " [$($menuKeys[$i-1])]" -NoNewline -ForegroundColor $Color
             Write-Host " $($menuOptions[$i-1])"
             #" " + $menuKeys[$i-1] + ": " + $menuOptions[$i-1]
         }
@@ -88,6 +90,7 @@ $Menu = @{
     MenuTitle = "Menu"
     menuOptions = @("Options1","Options2","Options3","Options4")
     menuActions = @('Write-Host "You Choose Option1 !"','Write-Host "You Choose Option2 !"','Write-Host "You Choose Option3 !"','Write-Host "You Choose Option4 !"')
+    Color = "Yellow"
 }
 
 Show-DynamicMenu @Menu
