@@ -35,7 +35,7 @@ function Show-DynamicMenu{
     Param(
         [Parameter(Mandatory=$true)]
         [string]$menuTitle,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$false)]
         [array]$menuKeys,
         [Parameter(Mandatory=$true)]
         [array]$menuOptions,
@@ -43,18 +43,24 @@ function Show-DynamicMenu{
         [array]$menuActions
     )
     # validates that the number of objects in keys, options, and actions match
-    if (-Not (($menuKeys.Length -eq $menuOptions.Length) -and ($menuOptions.Length -eq $menuActions.Length))) {
-        Write-Error "menuKeys, menuOptions, and menuActions must have the same number of objects in each array."
+    if (-Not ($menuOptions.Length -eq $menuActions.Length)) {
+        Write-Error "menuKeys, and menuActions must have the same number of objects in each array."
         return
     }
-    else { $menuLength = $menuKeys.Length }
+    else { 
+        if ($MemuKeys.Length -eq 0) {$MenuKeys = @(1..($menuOptions.Length))}
+        $menuLength = $menuKeys.Length 
+    }
+
+    
+
     $ShowMenu = $true
     while ($ShowMenu -eq $true){
         
         #TITLE
-        Write-Host ("=" * $Host.Ui.RawUI.BufferSize.Width) -ForegroundColor Green
-        Write-Host ("{0}{1}" -f (' ' * (([Math]::Max(0, $Host.UI.RawUI.BufferSize.Width / 2) - [Math]::Floor($Message.Length / 2)))), $menuTitle.ToUpper())  -ForegroundColor Green
-        Write-Host ("=" * $Host.Ui.RawUI.BufferSize.Width) -ForegroundColor Green
+        $Longer = ($menuOptions | Sort-Object Length -Descending | Select-Object -First 1).Length
+        Write-Host $menuTitle.ToUpper()  -ForegroundColor Green
+        Write-Host ("=" * ($Longer+ 8)) -ForegroundColor Green
         Write-Host ""
 
 
@@ -63,8 +69,9 @@ function Show-DynamicMenu{
             Write-Host " $($menuOptions[$i-1])"
             #" " + $menuKeys[$i-1] + ": " + $menuOptions[$i-1]
         }
+        Write-Host ""
         Write-Host "Make a selection" -NoNewline
-        Write-Host " [$($Menu.MenuKeys -join ",") OR Q to quit] " -ForegroundColor DarkYellow -NoNewline   
+        Write-Host " [$($MenuKeys -join ",") OR Q to quit] " -ForegroundColor DarkYellow -NoNewline   
         $selection = Read-Host
         $switch = 'switch($selection){'
         for($i=1;$i -le $menuLength; $i++){
@@ -79,7 +86,6 @@ function Show-DynamicMenu{
 <#
 $Menu = @{
     MenuTitle = "Menu"
-    MenuKeys = @(1,2,3,4)
     menuOptions = @("Options1","Options2","Options3","Options4")
     menuActions = @('Write-Host "You Choose Option1 !"','Write-Host "You Choose Option2 !"','Write-Host "You Choose Option3 !"','Write-Host "You Choose Option4 !"')
 }
