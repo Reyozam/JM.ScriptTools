@@ -32,7 +32,7 @@
 
 #>
 
-function Write-Log 
+function Write-LogColor 
 {
 
     [CmdletBinding()]
