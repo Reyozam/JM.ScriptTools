@@ -32,27 +32,34 @@
 
 #>
 
-function Write-LogColor 
+function Write-Log 
 {
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory = $true, ParameterSetName = "Text", ValueFromPipeline = $true)][string[]]$Text,          
-        [Parameter(Mandatory = $true, ParameterSetName = "StartLog", ValueFromPipeline = $true)][switch]$StartLog,
-        [Parameter(Mandatory = $true, ParameterSetName = "EndLog", ValueFromPipeline = $true)][switch]$EndLog,
-        [Parameter(Mandatory = $false)][ConsoleColor[]]$Color = "White",
-        [Parameter(Mandatory = $false)][int] $StartTab = 0,
-        [Parameter(Mandatory = $false)][int] $LinesBefore = 0,
-        [Parameter(Mandatory = $false)][int] $LinesAfter = 0,
-        [Parameter(Mandatory = $false)][switch] $ShowTime,
-        [Parameter(Mandatory = $false)][switch] $NoNewLine,     
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$LogFile
+        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = "Text", ValueFromPipeline = $true)][string[]]$Text, 
+        [Parameter(Mandatory = $false, ParameterSetName = "Text", ValueFromPipeline = $false)][ValidateSet('Info', 'Success', 'Warning', 'Error')][string]$Level,
+        [Parameter(Mandatory = $false, ParameterSetName = "Text", ValueFromPipeline = $false)][System.ConsoleColor[]]$Color,           
+        [Parameter(Mandatory = $false, ParameterSetName = "StartLog", ValueFromPipeline = $true)][switch]$StartLog,
+        [Parameter(Mandatory = $false, ParameterSetName = "EndLog", ValueFromPipeline = $true)][switch]$EndLog,
+        [Parameter(Mandatory = $false, ParameterSetName = "Text", ValueFromPipeline = $true)][int]$Tab,
+        [Parameter(Mandatory = $false, ParameterSetName = "Text", ValueFromPipeline = $true)][switch]$ShowTime,
+        [Parameter(Mandatory = $false, ParameterSetName = "Text", ValueFromPipeline = $true)][switch]$NoNewLine,
+        [Parameter(Mandatory = $false, ParameterSetName = "Text", ValueFromPipeline = $true)][int]$LinesBefore,  
+        [Parameter(Mandatory = $false, ParameterSetName = "Text", ValueFromPipeline = $true)][int]$LinesAfter,     
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$LogFile 
     )
  
     #=============================================
     # EXECUTION
     #=============================================
     
+    $LevelSymbol = @{
+        Info    = [PSCustomObject]@{Symbol = "[i]" ; "Color" = "Blue"      ; "LogTag" = "INFO" }
+        Success = [PSCustomObject]@{Symbol = "[+]" ; "Color" = "Green"     ; "LogTag" = "SUCCESS" }
+        Warning = [PSCustomObject]@{Symbol = "[!]" ; "Color" = "DarkYellow"; "LogTag" = "WARNING" }
+        Error   = [PSCustomObject]@{Symbol = "[x]" ; "Color" = "Red"       ; "LogTag" = "ERROR" }
+    }
  
     Switch ($PsCmdlet.ParameterSetName)
     {
@@ -60,26 +67,18 @@ function Write-LogColor
         {
             $CurrentScriptName = $myinvocation.ScriptName
             $script:StartDate = Get-Date
-            $LogStartDate_str = Get-Date -UFormat "%d-%m-%Y %H:%M:%S"
+            $LogStartDate_str = Get-Date -f "HH:mm:ss"
  
             #Information Systéme & Contexte
             $Current = [Security.Principal.WindowsIdentity]::GetCurrent()
             $CurrentUser = $Current.Name
             $CurrentComputer = $ENV:COMPUTERNAME
-            #System
-            if ($PSVersionTable.PSVersion -gt "4.0")
-            {
-                $CIM = Get-CimInstance win32_operatingsystem -Property Caption, Version, OSArchitecture
-            }
-            else 
-            {
-                $CIM = Get-WmiObject win32_operatingsystem -Property Caption, Version, OSArchitecture
-            }
+        
+            if ($PSVersionTable.PSVersion -gt "4.0") { $CIM = Get-CimInstance win32_operatingsystem -Property Caption, Version, OSArchitecture }
+            else { $CIM = Get-WmiObject win32_operatingsystem -Property Caption, Version, OSArchitecture }
             $OS = "$($CIM.Caption) [$($CIM.OSArchitecture)]"
             $OSVersion = $CIM.Version
             $PSVersion = ($PSVersionTable.PSVersion)
-            #UAC
-            #determine the current user so we can test if the user is running in an elevated session
             $Principal = [Security.Principal.WindowsPrincipal]$Current
             $Elevated = $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
  
@@ -98,41 +97,55 @@ function Write-LogColor
             # Log file creation
             if (!(Test-Path $LogFile)) {[void](New-Item $LogFile -Force)}
             Write-Output $Header | Out-File -FilePath $LogFile -Append -Encoding unicode -Force
-            Write-Host $Header -ForegroundColor White
+            Write-Host $Header -ForegroundColor $LevelSymbol.Info.Color
             break
         }
  
         "Text" #LOG
         {
             if ($Text.Count -eq 0) { return }
-            if ($LinesBefore -ne 0) {  for ($i = 0; $i -lt $LinesBefore; $i++) { Write-Host "`n" -NoNewline } } # Add empty line before
-            if ($ShowTime) { Write-Host "[$([datetime]::Now.ToString("HH:mm:ss"))]" -NoNewline} # Add Time before output
-            if ($StartTab -ne 0) {  for ($i = 0; $i -lt $StartTab; $i++) { Write-Host "`t" -NoNewLine } }  # Add TABS before text
+            if ($LinesBefore -ne 0) { for ($i = 0; $i -lt $LinesBefore; $i++) { Write-Host "`n" -NoNewline } }        #Add empty line before
+            if ($ShowTime) { Write-Host "[$([datetime]::Now.ToString("HH:mm:ss"))] " -NoNewline }                     #Add Time before output
+            if ($StartTab -ne 0) { for ($i = 0; $i -lt $StartTab; $i++) { Write-Host "`t" -NoNewLine } }
+            if ($Level -ne "") {Write-Host "$($LevelSymbol.$Level.Symbol) " -ForegroundColor $LevelSymbol.$Level.Color -NoNewline}
 
-            if ($Color.Count -ge $Text.Count) 
+            if ($Color.Count -eq 0)
             {
-                
-                for ($i = 0; $i -lt $Text.Length; $i++) { Write-Host $Text[$i] -ForegroundColor $Color[$i] -NoNewLine }
+                Write-Host $([System.String]::Concat($Text)) -NoNewline
             }
             else
             {
-                for ($i = 0; $i -lt $Color.Length ; $i++) { Write-Host $Text[$i] -ForegroundColor $Color[$i] -NoNewLine }
-                for ($i = $Color.Length; $i -lt $Text.Length; $i++) { Write-Host $Text[$i] -ForegroundColor $DefaultColor -NoNewLine }
-            }
-
-            if ($NoNewLine -eq $true) { Write-Host -NoNewline } else { Write-Host } # Support for no new line
-            if ($LinesAfter -ne 0) {  for ($i = 0; $i -lt $LinesAfter; $i++) { Write-Host "`n" } }  # Add empty line after
-
-            if ($LogFile -ne "") {
-                if (!(Test-Path $LogFile)) {[void](New-Item $LogFile -Force)}
-                # Save to file
-                $TextToFile = ""
-                for ($i = 0; $i -lt $Text.Length; $i++) {
-                    $TextToFile += $Text[$i]
+                if ($Color.Count -ge $Text.Count) 
+                {
+                    for ($i = 0; $i -lt $Text.Length; $i++) { Write-Host $Text[$i] -ForegroundColor $Color[$i] -NoNewLine }
                 }
-                try {
-                    Write-Output "[$([datetime]::Now.ToString($TimeFormat))] $TextToFile" | Out-File $LogFile -Encoding unicode -Append -Force
-                } catch {
+                else
+                {
+                    for ($i = 0; $i -lt $Color.Length ; $i++) { Write-Host $Text[$i] -ForegroundColor $Color[$i] -NoNewLine }
+                    for ($i = $Color.Length; $i -lt $Text.Length; $i++) { Write-Host $Text[$i] -NoNewLine }
+                }
+            }
+            
+
+            if ($NoNewLine -eq $true) { Write-Host -NoNewline } else { Write-Host }                 #Support for no new line
+            if ($LinesAfter -ne 0) { for ($i = 0; $i -lt $LinesAfter; $i++) { Write-Host "`n" } }  #Add empty line after
+
+            if ($LogFile -ne "")
+            {
+                if (!(Test-Path $LogFile)) { [void](New-Item $LogFile -Force) }
+                # Save to file
+
+                $LogLine = "[$([datetime]::Now.ToString("HH:mm:ss"))] "
+                if ($Level -ne "") {$LogLine += "[$($LevelSymbol.$Level.LogTag)] "}
+
+                $LogLine += $([System.String]::Concat($Text))
+                
+                try
+                {
+                    Write-Output "$LogLine" | Out-File $LogFile -Encoding unicode -Append -Force
+                }
+                catch
+                {
                     $_.Exception
                 }
             }
@@ -154,7 +167,7 @@ function Write-LogColor
  
             if ($LogFile -ne "") 
             {
-                if (!(Test-Path $LogFile)) {[void](New-Item $LogFile -Force)}
+                if (!(Test-Path $LogFile)) { [void](New-Item $LogFile -Force) }
                 Write-Output $Footer | Out-File -FilePath $LogFile -Append -Encoding unicode -Force
             }
 
