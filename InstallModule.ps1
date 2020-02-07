@@ -1,19 +1,7 @@
-﻿
-[CmdletBinding()]
-param (
-    [Parameter()][string]$RepoURI
-)
+﻿$ModuleName = "JM.ScriptTools"
 
-
-$ZipURL = if ($RepoURI.EndsWith('/')) {
-    return "$RepoURI"+"archive/master.zip"
-}
-else {
-    return "$RepoURI"+"/archive/master.zip"
-}
-
-$ModuleName = ($RepoURI -split "/")[-1]
 #=====================================================================================
+$ZipURL = "https://github.com/Reyozam/${ModuleName}/archive/master.zip"
 $DownloadFile = Join-Path $env:TEMP $($ModuleName + ".zip")
 $TempDir = Join-Path $env:TEMP -ChildPath (New-Guid).Guid
 $IsAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
@@ -31,26 +19,33 @@ else
 {
     $Destination = switch -Wildcard ($PSVersionTable.PSVersion.Major)
     {
-        { $_ -gt 5 } { Join-Path $([environment]::getfolderpath("mydocuments")) -ChildPath "Powerhell\Modules\$ModulesName"}
-        default { Join-Path $([environment]::getfolderpath("mydocuments")) -ChildPath "WindowsPowerhell\Modules\$ModulesName"}
+        { $_ -gt 5 } { Join-Path $([environment]::getfolderpath("mydocuments")) -ChildPath "Powershell\Modules\$ModuleName"}
+        default { Join-Path $([environment]::getfolderpath("mydocuments")) -ChildPath "WindowsPowershell\Modules\$ModuleName"}
     }
 }
 
-if ($Destination) {Remove-Item $Destination -Force -Recurse}
+if (Test-Path $Destination) {
+    Write-Verbose "Remove Old Files from $Destination" -Verbose
+    Remove-Item $Destination -Force -Recurse
+}
 
 Write-Verbose "Download of $ZipURL ..." -Verbose
 Invoke-WebRequest -Uri $ZipURL -OutFile $DownloadFile
 Unblock-File $DownloadFile
 
-Write-Verbose "Unzip $DownloadFile" -Verbose
+Write-Verbose "Unzip $DownloadFile to $TempDir" -Verbose
 Expand-Archive -Path $DownloadFile -DestinationPath $TempDir -Force
 $UnzippedFolder = (Get-ChildItem $TempDir | Where-Object { $_.Name -like "*-master" }).FullName 
 
 
-Write-Verbose "Copy to $Destination ..."
+Write-Verbose "Copy to $Destination ..." -Verbose
 
 Get-ChildItem $UnzippedFolder | Copy-Item -Destination $Destination -Recurse -Container -Force
 
+
+Write-Verbose "Remove Temp Files ..." -Verbose
+Remove-Item $TempDir -Force -Recurse
+Remove-Item $DownloadFile -Force
 
 
 
