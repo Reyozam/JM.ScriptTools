@@ -1,5 +1,18 @@
-﻿$ZipURL = "https://github.com/Reyozam/JM.ScriptTools/archive/master.zip"
-$ModuleName = "JM.ScriptTools"
+﻿
+[CmdletBinding()]
+param (
+    [Parameter()][string]$RepoURI
+)
+
+
+$ZipURL = if ($RepoURI.EndsWith('/')) {
+    return "$RepoURI"+"archive/master.zip"
+}
+else {
+    return "$RepoURI"+"/archive/master.zip"
+}
+
+$ModuleName = ($RepoURI -split "/")[-1]
 #=====================================================================================
 $DownloadFile = Join-Path $env:TEMP $($ModuleName + ".zip")
 $TempDir = Join-Path $env:TEMP -ChildPath (New-Guid).Guid
