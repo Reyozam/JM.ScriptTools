@@ -1,24 +1,4 @@
-﻿###############################################################################################################
-# Language     :  PowerShell 4.0
-# Filename     :  Send-Notification.ps1
-# Autor        :  Julien Mazoyer
-# Description  :  Create a Custom Windows Notification 
-###############################################################################################################
-
-<#    
-        .SYNOPSIS
-            Send Windows Notifications for scripts in the taskbar
-        
-        .DESCRIPTION
-            Send Windows Notifications for scripts in the taskbar
-    
-        .EXAMPLE
-            PS C:\> Send-Notification -Title "Check Script Status" -Message "50 object found !" -BalloonIcon Info
-
-        .EXAMPLE
-            PS C:\> Send-Notification -Message "Script Error !" -BalloonIcon Error
-#>
-function Send-Notification {
+﻿function Send-Notification {
 
         [cmdletbinding()]
     Param (
