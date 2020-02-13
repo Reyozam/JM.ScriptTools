@@ -212,6 +212,6 @@ COMMENTAIRES : Condition met before timeout period.
 This function watch a folder an return filesystem event in it.
 
 ```powershell
->
+Watch-Folder -Path C:\TEMP
 ```
 
