@@ -26,7 +26,7 @@ else
 
 if (Test-Path $Destination) {
     Write-Verbose "Remove Old Files from $Destination" -Verbose
-    Remove-Item $Destination -Force -Recurse
+    Remove-Item $Destination -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 Write-Verbose "Download of $ZipURL ..." -Verbose
