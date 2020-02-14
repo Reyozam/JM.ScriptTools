@@ -123,7 +123,7 @@ This function output conditional formatted object
 Get-Service | Out-TableColor -PropertyConditions @{"Stopped"="red";"Running"="green"} -Property status
 ```
 
-![Write-Log](img/Out-TableColor.jpg)
+![Write-Log](img/Out-TableColor2.jpg)
 
 
 
