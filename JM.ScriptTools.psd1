@@ -1,4 +1,4 @@
-#
+﻿#
 # Manifeste de module pour le module « JM.ScriptTools »
 #
 # Généré par : MAZOYER Julien
