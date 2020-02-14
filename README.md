@@ -132,7 +132,7 @@ Get-Service | Out-TableColor -PropertyConditions @{"Stopped"="red";"Running"="gr
 This function show menu from an hashtable template
 
 ```powershell
-@{
+$Menu = @{
 
     Title = "Menu Title"
 
