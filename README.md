@@ -12,8 +12,6 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercon
 Import-Module JM.ScriptTools
 ```
 
-
-
 ## Functions
 
 ### Write-Log
