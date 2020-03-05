@@ -4,8 +4,6 @@ Some PowerShell helpers functions to shorten and speed up console and scripts wo
 
 ## Installation
 
-You can get the current release from this repository or install this from the PowerShell Gallery:
-
 ```powershell
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/Reyozam/JM.ScriptTools/master/InstallModule.ps1'))
 
