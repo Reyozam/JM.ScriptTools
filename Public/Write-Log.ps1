@@ -18,10 +18,10 @@
     #--------------------------------------------=
     
     $Icons = @{
-        Info    = "[i] " 
-        Success = "[+] " 
-        Warning = "[!] " 
-        Error   = "[x] "
+        Info    = "INFO      " 
+        Success = "SUCCESS   " 
+        Warning = "WARNING   " 
+        Error   = "ERROR     "
     }
 
     $Colors = @{
@@ -59,7 +59,7 @@
                 Write-Output $Header | Out-File -FilePath $LogFile -Encoding unicode -Force
             }
             
-            Write-Host $Header -ForegroundColor $Colors["Info"]
+            Write-Host $Header
             break
         }
  
@@ -67,7 +67,7 @@
         {
             $Time = "[$([datetime]::Now.ToString("HH:mm:ss:fff"))] "
 
-            if (!$HideTime) { Write-Host $Time -ForegroundColor $Colors[$Level] -NoNewline }
+            if (!$HideTime) { Write-Host $Time  -NoNewline }
             if ($Tab -ne 0) { for ($i = 0; $i -lt $Tab; $i++) { Write-Host "    " -NoNewLine } }
 
             Write-Host $Icons[$Level] -ForegroundColor $Colors[$Level] -NoNewline
@@ -106,7 +106,7 @@
                 if (!(Test-Path $LogFile)) { [void](New-Item $LogFile -Force) }
                 Write-Output $Footer | Out-File -FilePath $LogFile -Append -Encoding unicode -Force
             }
-            Write-Host $Footer -ForegroundColor $Colors["Info"]
+            Write-Host $Footer
         }
  
     }
