@@ -2,14 +2,14 @@
 {
     [CmdletBinding()]
     Param (
-        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = "Message", ValueFromPipeline = $true)][string]$Message,
-        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $false)][ValidateSet('Info', 'Success', 'Warning', 'Error')][string]$Level = "Info",
         [Parameter(Mandatory = $false, ParameterSetName = "StartLog", ValueFromPipeline = $true)][switch]$StartLog,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "StartLog")][string]$LogFile,
+        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = "Message", ValueFromPipeline = $true)][string]$Message,
+        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $false)][ValidateSet('Info', 'Warning', 'Error')][string]$Level = "Info",
         [Parameter(Mandatory = $false, ParameterSetName = "EndLog", ValueFromPipeline = $true)][switch]$EndLog,
         [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][int]$Tab,
-        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][switch]$HideTime,
-        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][switch]$NoNewLine,
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$LogFile
+        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][int]$TimeStamp
+        
     )
 
     #--------------------------------------------=
@@ -35,45 +35,39 @@
             $Header += "Computer           : $ENV:COMPUTERNAME`r`n"
             $Header += "OS                 : $($CIM.Caption) [Build :$($CIM.Version)] `r`n"
             $Header += "PS Version         : $($PSVersionTable.PSVersion)`r`n"
+            $Header += "LogFile            : $LogFile`r`n"
             $Header += "------------------------------------------------------------------------------------------`n"
 
-            # Log file creation
-            if ($PSBoundParameters.ContainsKey("LogFile"))
-            {
-                if (!(Test-Path $LogFile)) { [void](New-Item $LogFile -Force) }
-                Write-Output $Header | Out-File -FilePath $LogFile -Encoding unicode -Force
-            }
+                if (-not(Test-Path $LogFile)) { [void](New-Item $LogFile -Force) }
+                $script:LogFile = $LogFile
 
-            Write-Output $Header
+                Write-Output $Header | Set-Content $script:Logfile -PassThru -Encoding unicode
         }
 
         "Message"
         {
+
             $BCKColor = $Host.ui.RawUI.ForegroundColor
 
-            $Time = "[$([datetime]::Now.ToString("HH:mm:ss:fff"))] "
-            $Tabs = "--" * $Tab
+            $Line = [System.Text.StringBuilder]::new()
 
-            $Line = ("{0}[{1}] {2} {3}" -f $Time, [string]::Format("{0,-7}", $Level.ToUpper()), $Tabs, $Message )
+            if ($TimeStamp){[void]$Line.Append("[$([datetime]::Now.ToString("HH:mm:ss:fff"))]")}
+            #[void]$Line.Append([string]::Format(" [{0,-7}] ", $Level.ToUpper()))
+            [void]$Line.Append("   " * $Tab)
 
             switch ($Level)
             {
-                Info    { $Host.ui.RawUI.ForegroundColor = "White" }
-                Error   { $Host.ui.RawUI.ForegroundColor = "Red" }
-                Warning { $Host.ui.RawUI.ForegroundColor = "DarkYellow" }
-                Success { $Host.ui.RawUI.ForegroundColor = "Green" }
+                Info    { [void]$Line.Append("[i] ") ; $Host.ui.RawUI.ForegroundColor = "White"      }
+                Error   { [void]$Line.Append("[x] ") ; $Host.ui.RawUI.ForegroundColor = "Red"        }
+                Warning { [void]$Line.Append("[!] ") ; $Host.ui.RawUI.ForegroundColor = "DarkYellow" }
             }
 
-            Write-Output $Line
+            [void]$Line.Append($Message)
+
+            Write-Output $Line.ToString() | Add-Content $script:Logfile -PassThru -Encoding unicode
             $host.ui.RawUI.ForegroundColor = $BCKColor
 
-            #Append Line in LogFile
-            if ($PSBoundParameters.ContainsKey("LogFile"))
-            {
-                if (-not(Test-Path $LogFile)) { [void](New-Item $LogFile -Force) }
-                $Line | Out-File -FilePath $LogFile -Append -Encoding unicode -Force
-            }
-
+        
         }
 
         "EndLog"
@@ -87,14 +81,14 @@
             $Footer += "Total Duration           : $($TimeSpan.ToString()) `r`n"
             $Footer += "+----------------------------------------------------------------------------------------+"
 
-            if ($PSBoundParameters.ContainsKey("LogFile"))
-            {
-                if (!(Test-Path $LogFile)) { [void](New-Item $LogFile -Force) }
-                Write-Output $Footer | Out-File -FilePath $LogFile -Append -Encoding unicode -Force
-            }
-            Write-Output $Header
+            Write-Output $Footer | Add-Content $script:Logfile -PassThru -Encoding unicode
         }
 
     }
 
 }
+
+
+
+
+

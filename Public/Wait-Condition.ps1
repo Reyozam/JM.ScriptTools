@@ -19,7 +19,7 @@ function Wait-Condition
 	try
 	{
 		[string]$ConditionASString = $Conditon
-		Write-Verbose "Wait $Timeout seconds for the condition to be fulfilled" -Verbose
+		Write-Verbose "Wait $Timeout seconds for the condition to be fulfilled"
 		$timer = [Diagnostics.Stopwatch]::StartNew()
 		while (($timer.Elapsed.TotalSeconds -lt $Timeout) -and (!(& $Condition $ArgumentList)))
 		{
