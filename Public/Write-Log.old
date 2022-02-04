@@ -1,0 +1,193 @@
+﻿function Write-Log
+{
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory = $false, ParameterSetName = "StartLog", ValueFromPipeline = $true)][switch]$StartLog,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "StartLog")][string]$LogFile,
+        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = "Message", ValueFromPipeline = $true)][string[]]$Message,
+        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][string[]]$Color,
+        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][string[]]$BackGroundColor,
+        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $false)][ValidateSet('Info', 'Warning', 'Error','Success')][string]$Level = "Info",
+        [Parameter(Mandatory = $false, ParameterSetName = "EndLog", ValueFromPipeline = $true)][switch]$EndLog,
+        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][int]$Tab,
+        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][switch]$TimeStamp,
+        [Parameter(Mandatory = $false, ParameterSetName = "Message", ValueFromPipeline = $true)][switch]$NoNewLine
+
+        
+    )
+
+    #--------------------------------------------=
+    # EXECUTION
+    #--------------------------------------------=
+
+    Switch ($PsCmdlet.ParameterSetName)
+    {
+        "StartLog"
+        {
+            $script:StartDate = Get-Date
+            $User = [Security.Principal.WindowsIdentity]::GetCurrent()
+            $Elevated = ([Security.Principal.WindowsPrincipal]$User).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+
+            if ($PSVersionTable.PSVersion -gt "4.0")
+            {
+                $CIM = Get-CimInstance win32_operatingsystem -Property Caption, Version, OSArchitecture 
+            }
+            else
+            {
+                $CIM = Get-WmiObject win32_operatingsystem -Property Caption, Version, OSArchitecture 
+            }
+
+            $Header = "------------------------------------------------------------------------------------------`r`n"
+            $Header += "Script Name        : $($myinvocation.ScriptName)  `r`n"
+            $Header += "Generated on       : $($StartDate.tostring("dd/MM/yy HH:mm:ss")) `r`n"
+            $Header += "User               : $($user.Name) `r`n"
+            $Header += "Elevated           : $Elevated`r`n"
+            $Header += "Computer           : $ENV:COMPUTERNAME`r`n"
+            $Header += "OS                 : $($CIM.Caption) [Build :$($CIM.Version)] `r`n"
+            $Header += "PS Version         : $($PSVersionTable.PSVersion)`r`n"
+            $Header += "LogFile            : $LogFile`r`n"
+            $Header += "------------------------------------------------------------------------------------------`n"
+
+            if (-not(Test-Path $LogFile))
+            {
+                [void](New-Item $LogFile -Force) 
+            }
+            $script:LogFile = $LogFile
+
+            Write-Output $Header | Set-Content $script:Logfile -PassThru -Encoding unicode
+        }
+
+        "Message"
+        {
+            
+            if ($env:WT_SESSION)
+            {
+                $Icons = @{
+                    Info = ""
+                    Warning = "⚠️ "
+                    Error = "🔥 "
+                    Succes = "✔️ "
+                }  
+            }
+
+
+            if ($TimeStamp)
+            {
+                Write-Host -Object "[$([datetime]::Now.ToString("yyyy-MM-dd HH:mm:ss"))] " -NoNewline 
+            }
+
+            if ($Tab -ne 0) 
+            { 
+                for ($i = 0; $i -lt $Tab; $i++)
+                { 
+                    Write-Host -Object "  " -NoNewline
+                } 
+            }
+
+            switch ($Level)
+            {
+                Info
+                {
+                    Write-Host -Object "| "  -NoNewline  ; Write-Host -Object " "  -NoNewline  ; $DefaultColor = "White" 
+                }
+                Error
+                {
+                    Write-Host -Object "|" -NoNewline -ForegroundColor Red ; Write-Host -Object " "  -NoNewline  ; $DefaultColor = "Red" 
+                }
+                Warning
+                {
+                    Write-Host -Object "|" -NoNewline -ForegroundColor DarkYellow ; Write-Host -Object " "  -NoNewline  ; $DefaultColor = "DarkYellow" 
+                }
+                Success
+                {
+                    Write-Host -Object " " -NoNewline -ForegroundColor Green ; Write-Host -Object " "  -NoNewline  ; $DefaultColor = "Green" 
+                }
+            }
+
+        
+            
+            if ($Message.Count -ne 0)
+            {
+                if ($Color.Count -ge $Message.Count)
+                {
+                    if ($null -eq $BackGroundColor)
+                    {
+                        for ($i = 0; $i -lt $Message.Length; $i++)
+                        {
+                            Write-Host -Object $Message[$i] -ForegroundColor $Color[$i] -NoNewline 
+                        } 
+                    }
+                    else
+                    {
+                        for ($i = 0; $i -lt $Message.Length; $i++)
+                        {
+                            Write-Host -Object $Message[$i] -ForegroundColor $Color[$i] -BackgroundColor $BackGroundColor[$i] -NoNewline 
+                        } 
+                    } 
+                }
+                else
+                {
+                    if ($null -eq $BackGroundColor)
+                    {
+                        for ($i = 0; $i -lt $Color.Length; $i++)
+                        {
+                            Write-Host -Object $Message[$i] -ForegroundColor $Color[$i] -NoNewline 
+                        }
+                        for ($i = $Color.Length; $i -lt $Message.Length; $i++)
+                        {
+                            Write-Host -Object $Message[$i] -ForegroundColor $DefaultColor -NoNewline 
+                        }
+                    }
+                    else
+                    {
+                        for ($i = 0; $i -lt $Color.Length; $i++)
+                        {
+                            Write-Host -Object $Message[$i] -ForegroundColor $Color[$i] -BackgroundColor $BackGroundColor[$i] -NoNewline 
+                        }
+                        for ($i = $Color.Length; $i -lt $Message.Length; $i++)
+                        {
+                            Write-Host -Object $Message[$i] -ForegroundColor $DefaultColor -BackgroundColor $BackGroundColor[0] -NoNewline 
+                        }
+                    }
+                }
+                
+                if (-not $NoNewLine) { Write-Host }
+            }
+
+            if ($LogFile)
+            {
+                $LogFileLine = [System.Text.StringBuilder]::new()
+                $LogFileLine.Append("[$([datetime]::Now.ToString("yyyy-MM-dd HH:mm:ss"))] ")
+
+                [void]$LogFileLine.Append([string]::Format(" [{0,-7}] ", $Level.ToUpper())) 
+            }
+            # [void]$Line.Append($Message)
+
+            # Write-Output $Line.ToString() | Add-Content $script:Logfile -PassThru -Encoding unicode
+            # $host.ui.RawUI.ForegroundColor = $BCKColor
+
+        
+        }
+
+        "EndLog"
+        {
+            $EndDate = Get-Date
+            $TimeSpan = New-TimeSpan -Start $StartDate -End $EndDate
+
+            $Footer += "`r`n"
+            $Footer += "+----------------------------------------------------------------------------------------+`r`n"
+            $Footer += "End Time                 : $EndDate`r`n"
+            $Footer += "Total Duration           : $($TimeSpan.ToString()) `r`n"
+            $Footer += "+----------------------------------------------------------------------------------------+"
+
+            Write-Output $Footer | Add-Content $script:Logfile -PassThru -Encoding unicode
+        }
+
+    }
+
+}
+
+
+
+
+
