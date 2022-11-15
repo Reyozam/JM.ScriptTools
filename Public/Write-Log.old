@@ -24,37 +24,36 @@
     {
         "StartLog"
         {
-            $script:StartDate = Get-Date
-            $User = [Security.Principal.WindowsIdentity]::GetCurrent()
-            $Elevated = ([Security.Principal.WindowsPrincipal]$User).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+$script:StartDate = Get-Date
+$User = [Security.Principal.WindowsIdentity]::GetCurrent()
+$Elevated = ([Security.Principal.WindowsPrincipal]$User).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 
-            if ($PSVersionTable.PSVersion -gt "4.0")
-            {
-                $CIM = Get-CimInstance win32_operatingsystem -Property Caption, Version, OSArchitecture 
-            }
-            else
-            {
-                $CIM = Get-WmiObject win32_operatingsystem -Property Caption, Version, OSArchitecture 
-            }
+if ($PSVersionTable.PSVersion -gt "4.0")
+{
+    $CIM = Get-CimInstance win32_operatingsystem -Property Caption, Version, OSArchitecture 
+}
+else
+{
+    $CIM = Get-WmiObject win32_operatingsystem -Property Caption, Version, OSArchitecture 
+}
 
-            $Header = "------------------------------------------------------------------------------------------`r`n"
-            $Header += "Script Name        : $($myinvocation.ScriptName)  `r`n"
-            $Header += "Generated on       : $($StartDate.tostring("dd/MM/yy HH:mm:ss")) `r`n"
-            $Header += "User               : $($user.Name) `r`n"
-            $Header += "Elevated           : $Elevated`r`n"
-            $Header += "Computer           : $ENV:COMPUTERNAME`r`n"
-            $Header += "OS                 : $($CIM.Caption) [Build :$($CIM.Version)] `r`n"
-            $Header += "PS Version         : $($PSVersionTable.PSVersion)`r`n"
-            $Header += "LogFile            : $LogFile`r`n"
-            $Header += "------------------------------------------------------------------------------------------`n"
+$Header =  "┌─────────────────────────────────────────────────────────────────────────────────────┐`r`n"
+$Header += "│{0,-20}: {1,-63}│`r`n" -f "Script Name",$($myinvocation.ScriptName)
+$Header += "│{0,-20}: {1,-63}│`r`n" -f "Generated on ",$($StartDate.tostring("dd/MM/yy HH:mm:ss"))
+$Header += "│{0,-20}: {1,-63}│`r`n" -f "User ",$($user.Name) 
+$Header += "│{0,-20}: {1,-63}│`r`n" -f "Elevated ",$Elevated
+$Header += "│{0,-20}: {1,-63}│`r`n" -f "Computer ",$ENV:COMPUTERNAME
+$Header += "│{0,-20}: {1,-63}│`r`n" -f "OS ","$($CIM.Caption) [Build :$($CIM.Version)]"
+$Header += "│{0,-20}: {1,-63}│`r`n" -f "Version ",$($PSVersionTable.PSVersion)
+$Header += "└─────────────────────────────────────────────────────────────────────────────────────┘`n"
 
-            if (-not(Test-Path $LogFile))
-            {
-                [void](New-Item $LogFile -Force) 
-            }
-            $script:LogFile = $LogFile
+if (-not(Test-Path $LogFile))
+{
+    [void](New-Item $LogFile -Force) 
+}
+$script:LogFile = $LogFile
 
-            Write-Output $Header | Set-Content $script:Logfile -PassThru -Encoding unicode
+Write-Output $Header | Set-Content $script:Logfile -PassThru -Encoding unicode
         }
 
         "Message"
