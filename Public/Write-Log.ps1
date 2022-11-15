@@ -14,41 +14,51 @@
     )
 
     $ESC = [char]27
+    #$Icon = [char]0x25A0
     $String = [System.Text.StringBuilder]::new()
 
-    if ($TimeStamp) { [void]$String.Append("$ESC[90m$(Get-Date -f "[HH:mm:ss]")$ESC[0m ")  }
+    if ($TimeStamp) { [void]$String.Append("$ESC[90m$(Get-Date -f '[HH:mm:ss]')$ESC[0m") }
 
     switch ($Level)
     {
-        Info {
-            [void]$String.Append("$ESC[37m$("   ")$ESC[0m ")
-            if ($Tab -gt 0) { [void]$String.Append("   ")  }
-            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m ") }
+        Info
+        {
+            $Icon = "   "
+            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m") }
+            [void]$String.Append("$ESC[37m$($Icon)$ESC[0m")
+            if ($Tab -gt 0) { [void]$String.Append('   ') }
+
             [void]$String.Append("$ESC[37m$($Message)$ESC[0m ")
         }
-        Error {
-            [void]$String.Append("$ESC[91m$("x ")$ESC[0m ")
-            if ($Tab -gt 0) { [void]$String.Append("   ")  }
-            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m ") }
+        Error
+        {
+            $Icon = " x "
+            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m") }
+            [void]$String.Append("$ESC[91m$($icon)$ESC[0m")
+            if ($Tab -gt 0) { [void]$String.Append('   ') }
             [void]$String.Append("$ESC[91m$($Message)$ESC[0m ")
         }
-        Warning {
-            [void]$String.Append("$ESC[93m$("! ")$ESC[0m ")
-            if ($Tab -gt 0) { [void]$String.Append("   ")  }
-            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m ") }
+        Warning
+        {
+            $Icon = " ! "
+            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m") }
+            [void]$String.Append("$ESC[93m$($icon)$ESC[0m")
+            if ($Tab -gt 0) { [void]$String.Append('   ') }
             [void]$String.Append("$ESC[93m$($Message)$ESC[0m ")
         }
-        Success {
-            [void]$String.Append("$ESC[92m$("+ ")$ESC[0m ")
-            if ($Tab -gt 0) { [void]$String.Append("   ")  }
-            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m ") }
+        Success
+        {
+            $Icon = " + "
+            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m") }
+            [void]$String.Append("$ESC[92m$($icon)$ESC[0m")
+            if ($Tab -gt 0) { [void]$String.Append('   ') }
             [void]$String.Append("$ESC[92m$($Message)$ESC[0m ")
         }
     }
 
-    if ($JumpLine -eq 'Before' ) { Write-Output "" }
+    if ($JumpLine -eq 'Before' ) { Write-Output '' }
     $String.ToString()
-    if ($JumpLine -eq 'After' ) { Write-Output "" }
+    if ($JumpLine -eq 'After' ) { Write-Output '' }
 
     #LOG
     if ( $LogFile )
@@ -63,4 +73,17 @@
         if ($JumpLine -eq 'After' ) { ' '  | Out-File @OutFileParams }
     }
 
+}
+
+1..100 | ForEach-Object {
+
+    $Params = @{
+        Level   = 'Info', 'Warning', 'Error', 'Success' | Get-Random
+        Message = 'Ceci est un message de log'
+        #Context = 'Process'
+        #Tab = Get-Random -Minimum 0 -Maximum 2
+        TimeStamp= $false
+    }
+
+    Write-Log @Params
 }
