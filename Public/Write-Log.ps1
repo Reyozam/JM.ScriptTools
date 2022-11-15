@@ -23,26 +23,26 @@
         Info {
             [void]$String.Append("$ESC[37m$("   ")$ESC[0m ")
             if ($Tab -gt 0) { [void]$String.Append("   ")  }
-            if ($Context) { [void]$String.Append("$ESC[36m$("[$Context]")$ESC[0m ") }
+            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m ") }
             [void]$String.Append("$ESC[37m$($Message)$ESC[0m ")
         }
         Error {
-            [void]$String.Append("$ESC[31m$("x ")$ESC[0m ")
+            [void]$String.Append("$ESC[91m$("x ")$ESC[0m ")
             if ($Tab -gt 0) { [void]$String.Append("   ")  }
-            if ($Context) { [void]$String.Append("$ESC[36m$("[$Context]")$ESC[0m ") }
-            [void]$String.Append("$ESC[31m$($Message)$ESC[0m ")
+            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m ") }
+            [void]$String.Append("$ESC[91m$($Message)$ESC[0m ")
         }
         Warning {
-            [void]$String.Append("$ESC[33m$("! ")$ESC[0m ")
+            [void]$String.Append("$ESC[93m$("! ")$ESC[0m ")
             if ($Tab -gt 0) { [void]$String.Append("   ")  }
-            if ($Context) { [void]$String.Append("$ESC[36m$("[$Context]")$ESC[0m ") }
-            [void]$String.Append("$ESC[33m$($Message)$ESC[0m ")
+            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m ") }
+            [void]$String.Append("$ESC[93m$($Message)$ESC[0m ")
         }
         Success {
-            [void]$String.Append("$ESC[32m$("+ ")$ESC[0m ")
+            [void]$String.Append("$ESC[92m$("+ ")$ESC[0m ")
             if ($Tab -gt 0) { [void]$String.Append("   ")  }
-            if ($Context) { [void]$String.Append("$ESC[36m$("[$Context]")$ESC[0m ") }
-            [void]$String.Append("$ESC[32m$($Message)$ESC[0m ")
+            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m ") }
+            [void]$String.Append("$ESC[92m$($Message)$ESC[0m ")
         }
     }
 
