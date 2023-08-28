@@ -8,82 +8,53 @@
         [Parameter(Mandatory = $false)][ValidateSet('Info', 'Warning', 'Error', 'Success')][string]$Level = 'Info',
         [Parameter(Mandatory = $false)][ValidateSet('Before', 'After')][string]$JumpLine,
         [Parameter(Mandatory = $false)][switch]$TimeStamp,
-        [Parameter(Mandatory = $false)][int]$Tab = 0,
+        [Parameter(Mandatory = $false)][switch]$Tab,
         [Parameter(Mandatory = $false)][string]$LogFile,
         [Parameter(Mandatory = $false)][switch]$ClearLog
     )
+
+    $ANSIColors = @{
+        Success = "$([char]0x1b)[92m"
+        Warning = "$([char]0x1b)[93m"
+        Error   = "$([char]0x1b)[91m"
+        Context = "$([char]0x1b)[96m"
+        Time    = "$([char]0x1b)[90m"
+        Reset   = "$([char]0x1b)[0m"
+    }
+
+    $Indent = '    '
+
 
     $ESC = [char]27
     #$Icon = [char]0x25A0
     $String = [System.Text.StringBuilder]::new()
 
-    if ($TimeStamp) { [void]$String.Append("$ESC[90m$(Get-Date -f '[HH:mm:ss]')$ESC[0m") }
+    if ($TimeStamp) { [void]$String.Append("$($ANSIColors['Time'])$(Get-Date -f 'hh:mm:ss:ffff')$($ANSIColors['Reset']) ") }
+    if ($Context) { [void]$String.Append("$($ANSIColors['Context'])$Context$($ANSIColors['Reset']) ") }
+    if ($TAB) { [void]$String.Append($Indent) }
+
 
     switch ($Level)
     {
-        Info
-        {
-            $Icon = "   "
-            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m") }
-            [void]$String.Append("$ESC[37m$($Icon)$ESC[0m")
-            if ($Tab -gt 0) { [void]$String.Append('   ') }
-
-            [void]$String.Append("$ESC[37m$($Message)$ESC[0m ")
-        }
-        Error
-        {
-            $Icon = " x "
-            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m") }
-            [void]$String.Append("$ESC[91m$($icon)$ESC[0m")
-            if ($Tab -gt 0) { [void]$String.Append('   ') }
-            [void]$String.Append("$ESC[91m$($Message)$ESC[0m ")
-        }
-        Warning
-        {
-            $Icon = " ! "
-            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m") }
-            [void]$String.Append("$ESC[93m$($icon)$ESC[0m")
-            if ($Tab -gt 0) { [void]$String.Append('   ') }
-            [void]$String.Append("$ESC[93m$($Message)$ESC[0m ")
-        }
-        Success
-        {
-            $Icon = " + "
-            if ($Context) { [void]$String.Append("$ESC[96m$("[$Context]")$ESC[0m") }
-            [void]$String.Append("$ESC[92m$($icon)$ESC[0m")
-            if ($Tab -gt 0) { [void]$String.Append('   ') }
-            [void]$String.Append("$ESC[92m$($Message)$ESC[0m ")
-        }
+        Info { [void]$String.Append("$Message") }
+        Warning { [void]$String.Append("$($ANSIColors['Warning'])$Message$($ANSIColors['Reset'])") }
+        Error { [void]$String.Append("$($ANSIColors['Error'])$Message$($ANSIColors['Reset'])") }
+        Success { [void]$String.Append("$($ANSIColors['Success'])$Message$($ANSIColors['Reset'])") }
     }
 
     if ($JumpLine -eq 'Before' ) { Write-Output '' }
-    $String.ToString()
+    Write-Output $String.ToString()
     if ($JumpLine -eq 'After' ) { Write-Output '' }
 
     #LOG
     if ( $LogFile )
     {
-        if (!(Test-Path $LogFile)) { New-Item -Path $LogFile -ItemType File -Force | Out-Null }
-
-        $OutFileParams = @{ FilePath = $LogFile  ; Encoding = 'utf8' }
+        $OutFileParams = @{ FilePath = $LogFile  ; Encoding = 'utf8' ; Force = $true }
         if (-not $ClearLog) { $OutFileParams['Append'] = $true }
 
         if ($JumpLine -eq 'Before' ) { ' ' | Out-File @OutFileParams }
-        '{0,-21}[{1,-10}] [{2}] {3}{4}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Level.ToUpper() , $Context  , $Indent, $Message | Out-File @OutFileParams
+        '{0,-21}{1,-10} {2} {3}{4}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Level.ToUpper() , $Context  , $Indent, $Message | Out-File @OutFileParams
         if ($JumpLine -eq 'After' ) { ' '  | Out-File @OutFileParams }
     }
 
-}
-
-1..100 | ForEach-Object {
-
-    $Params = @{
-        Level   = 'Info', 'Warning', 'Error', 'Success' | Get-Random
-        Message = 'Ceci est un message de log'
-        #Context = 'Process'
-        #Tab = Get-Random -Minimum 0 -Maximum 2
-        TimeStamp= $false
-    }
-
-    Write-Log @Params
 }
