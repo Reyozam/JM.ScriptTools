@@ -1,60 +1,69 @@
-﻿Function Write-Log
+﻿function Write-Log
 {
 
     [CmdletBinding()]
     Param (
-        [Parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true)][string]$Message,
-        [Parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $true)][string]$Context,
-        [Parameter(Mandatory = $false)][ValidateSet('Info', 'Warning', 'Error', 'Success')][string]$Level = 'Info',
-        [Parameter(Mandatory = $false)][ValidateSet('Before', 'After')][string]$JumpLine,
-        [Parameter(Mandatory = $false)][switch]$TimeStamp,
-        [Parameter(Mandatory = $false)][switch]$Tab,
-        [Parameter(Mandatory = $false)][string]$LogFile,
-        [Parameter(Mandatory = $false)][switch]$ClearLog
+        [Parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true)][string[]]$Message,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)][ValidateSet('Info', 'Success', 'Warning', 'Error')][string]$Level = 'Info',
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)][ConsoleColor[]]$Color = 'White',
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)][int]$Tab,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)][switch]$TimeStamp,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)][ValidateSet('Before', 'After')][string]$Jumpline,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)][string]$LogFile
     )
 
-    $ANSIColors = @{
-        Success = "$([char]0x1b)[92m"
-        Warning = "$([char]0x1b)[93m"
-        Error   = "$([char]0x1b)[91m"
-        Context = "$([char]0x1b)[96m"
-        Time    = "$([char]0x1b)[90m"
-        Reset   = "$([char]0x1b)[0m"
-    }
-
-    $Indent = '    '
-
-
-    $ESC = [char]27
-    #$Icon = [char]0x25A0
-    $String = [System.Text.StringBuilder]::new()
-
-    if ($TimeStamp) { [void]$String.Append("$($ANSIColors['Time'])$(Get-Date -f 'hh:mm:ss:ffff')$($ANSIColors['Reset']) ") }
-    if ($Context) { [void]$String.Append("$($ANSIColors['Context'])$Context$($ANSIColors['Reset']) ") }
-    if ($TAB) { [void]$String.Append($Indent) }
-
+    #--------------------------------------------=
+    # EXECUTION
+    #--------------------------------------------=
 
     switch ($Level)
     {
-        Info { [void]$String.Append("$Message") }
-        Warning { [void]$String.Append("$($ANSIColors['Warning'])$Message$($ANSIColors['Reset'])") }
-        Error { [void]$String.Append("$($ANSIColors['Error'])$Message$($ANSIColors['Reset'])") }
-        Success { [void]$String.Append("$($ANSIColors['Success'])$Message$($ANSIColors['Reset'])") }
+        'Info' { $DefaultColor = 'White' ; $Icon = '   ' }
+        'Warning' { $DefaultColor = 'Yellow' ; $Icon = ' ! ' }
+        'Error' { $DefaultColor = 'Red' ; $Icon = ' x ' }
+        'Success' { $DefaultColor = 'Green' ; $Icon = ' + ' }
     }
 
-    if ($JumpLine -eq 'Before' ) { Write-Output '' }
-    Write-Output $String.ToString()
-    if ($JumpLine -eq 'After' ) { Write-Output '' }
+    $Color = $Color -replace 'white', $DefaultColor
 
-    #LOG
-    if ( $LogFile )
+    if ($Jumpline -eq 'Before') { Write-Host -Object "`n" -NoNewline } #JUMPLINE
+    if ($TimeStamp) { Write-Host "$([datetime]::Now.ToString('HH:mm:ss:fff'))" -ForegroundColor DarkGray -NoNewline } # TIMESTAMP
+    Write-Host $icon -ForegroundColor $DefaultColor -NoNewline #ICONS
+    if ($Tab -ne 0) { for ($i = 0; $i -lt $Tab; $i++) { Write-Host -Object '   ' -NoNewline } } #TABS
+
+
+    if ($Message.Count -ne 0)
     {
-        $OutFileParams = @{ FilePath = $LogFile  ; Encoding = 'utf8' ; Force = $true }
-        if (-not $ClearLog) { $OutFileParams['Append'] = $true }
+        if ($Color.Count -ge $Message.Count)
+        {
+            for ($i = 0; $i -lt $Message.Length; $i++) { Write-Host -Object $Message[$i] -ForegroundColor $Color[$i] -NoNewline }
+        }
+        else
+        {
+            for ($i = 0; $i -lt $Color.Length ; $i++) { Write-Host -Object $Message[$i] -ForegroundColor $Color[$i] -NoNewline }
+            for ($i = $Color.Length; $i -lt $Message.Length; $i++) { Write-Host -Object $Message[$i] -ForegroundColor $DefaultColor -NoNewline }
+        }
+    }
+    Write-Host
+    if ($Jumpline -eq 'After') { Write-Host -Object "`n" -NoNewline } #JUMPLINE
 
-        if ($JumpLine -eq 'Before' ) { ' ' | Out-File @OutFileParams }
-        '{0,-21}{1,-10} {2} {3}{4}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Level.ToUpper() , $Context  , $Indent, $Message | Out-File @OutFileParams
-        if ($JumpLine -eq 'After' ) { ' '  | Out-File @OutFileParams }
+    if ($PSBoundParameters.ContainsKey('LogFile'))
+    {
+        if (-not(Test-Path $LogFile)) { [void](New-Item $LogFile -Force) }
+
+        $StringElements = @(
+            "$([datetime]::Now.ToString('HH:mm:ss:fff'))",
+            "$([string]::Format('{0,-7}', $Level.ToUpper()))",
+
+            "$($Message -join '')"
+        )
+
+        if ($Jumpline -eq 'Before') { Write-Output "" | Out-File -FilePath $LogFile -Append -Encoding unicode -Force }
+
+        Write-Output $('{0} |{1}| {2} {3}' -f $([datetime]::Now.ToString('HH:mm:ss:fff')), $([string]::Format('{0,-7}', $Level.ToUpper())), $('   ' * $Tab), $($Message -join '') ) |
+            Out-File -FilePath $LogFile -Append -Encoding unicode -Force
+
+        if ($Jumpline -eq 'After') { Write-Output "" | Out-File -FilePath $LogFile -Append -Encoding unicode -Force }
     }
 
 }
