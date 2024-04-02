@@ -1,11 +1,11 @@
 ﻿function Write-Menu
-{ 
-    <# 
-    .SYNOPSIS 
+{
+    <#
+    .SYNOPSIS
           Write CLI Menu
-    .DESCRIPTION 
+    .DESCRIPTION
           Write CLI Menu from a hashtable template
-    .EXAMPLE 
+    .EXAMPLE
           $Menu = @{
 
                 Title = "Menu Title"
@@ -25,23 +25,22 @@
             Write-Menu -MenuHashtable $Menu
     #>
     [CmdletBinding()]
-    param 
-    ( 
+    param
+    (
         #Hashtable Menu
         [Parameter(Mandatory)]
         [hashtable]$MenuHashtable,
 
-        [System.ConsoleColor]$Color = "Green"
-    ) 
-   
+        [System.ConsoleColor]$Color = "White"
+    )
+
     begin
-    { 
+    {
         if ($MenuHashtable["Title"])
         {
             #TITLE
             $Lenght = ($MenuHashtable["Title"]).Length + 10
             Write-Host ($MenuHashtable["Title"]).ToUpper()  -ForegroundColor $Color
-            Write-Host ("=" * $Lenght) -ForegroundColor $Color
             Write-Host ""
         }
 
@@ -49,10 +48,10 @@
 
         [System.Collections.ArrayList]$Keys = $MenuHashtable.Keys | Where-Object { $_.Length -eq 1 } | Sort-Object
 
-    } 
-   
+    }
+
     process
-    {        
+    {
         $Keys | Where-object { $_ -ne "Q" } | ForEach-Object {
 
             Write-Host "[${_}] " -ForegroundColor $Color -NoNewline
@@ -72,7 +71,7 @@
             Write-Host "Make a selection" -NoNewline
             Write-Host " [$($Keys -join ",") OR Q to quit] " -ForegroundColor DarkYellow -NoNewline
             Write-Host "> " -NoNewline
-            
+
             $Selection = Read-Host
         } until ($Keys -contains $Selection)
 

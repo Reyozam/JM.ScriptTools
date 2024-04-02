@@ -57,7 +57,7 @@ Description = 'Helpers Functions for Scripts'
 # RequiredAssemblies = @()
 
 # Fichiers de script (.ps1) exécutés dans l’environnement de l’appelant préalablement à l’importation de ce module
-# ScriptsToProcess = @()
+  ScriptsToProcess = @("Classes/log.class.ps1")
 
 # Fichiers de types (.ps1xml) à charger lors de l'importation de ce module
 # TypesToProcess = @()
