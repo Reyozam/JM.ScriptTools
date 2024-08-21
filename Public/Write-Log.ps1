@@ -18,18 +18,18 @@
 
     switch ($Level)
     {
-        'Info' { $DefaultColor = 'White' ; $Icon = '   ' }
-        'Warning' { $DefaultColor = 'Yellow' ; $Icon = ' ! ' }
-        'Error' { $DefaultColor = 'Red' ; $Icon = ' x ' }
-        'Success' { $DefaultColor = 'Green' ; $Icon = ' + ' }
+        'Info' { $DefaultColor = 'White' ; $Icon =  '  ' }
+        'Warning' { $DefaultColor = 'Yellow' ; $Icon = '! ' }
+        'Error' { $DefaultColor = 'Red' ; $Icon = 'x ' }
+        'Success' { $DefaultColor = 'Green' ; $Icon = '+ ' }
     }
 
     $Color = $Color -replace 'white', $DefaultColor
 
     if ($Jumpline -eq 'Before') { Write-Host -Object "`n" -NoNewline } #JUMPLINE
-    if ($TimeStamp) { Write-Host "$([datetime]::Now.ToString('HH:mm:ss:fff'))" -ForegroundColor DarkGray -NoNewline } # TIMESTAMP
-    Write-Host $icon -ForegroundColor $DefaultColor -NoNewline #ICONS
+    if ($TimeStamp) { Write-Host "$([datetime]::Now.ToString('HH:mm:ss:fff '))" -ForegroundColor DarkGray -NoNewline } # TIMESTAMP
     if ($Tab -ne 0) { for ($i = 0; $i -lt $Tab; $i++) { Write-Host -Object '   ' -NoNewline } } #TABS
+    Write-Host $icon -ForegroundColor $DefaultColor -NoNewline #ICONS
 
 
     if ($Message.Count -ne 0)
